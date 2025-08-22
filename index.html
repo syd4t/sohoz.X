@@ -1,40 +1,851 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Earn money by selling Facebook and Gmail accounts. Withdraw via bKash, Nagad, or Rocket."/>
-  <title>Mail Bee - Sell Accounts</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #833ab4, #fd1d1d, #fcb045);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    header {
-      background: rgba(0,0,0,0.6);
-      text-align: center;
-      padding: 12px;
-      font-size: 20px;
-      font-weight: bold;
-    }
-    .container {
-      flex: 1;
-      padding: 20px;
-    }
-    .notice {
-      background: #111;
-      color: yellow;
-      padding: 10px;
-      margin-bottom: 20px;
-      font-weight: bold;
-      text-align: center;
-      border-radius: 10px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sohoz.bd - নিবন্ধন এবং লগইন</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            --secondary: #8a8d93;
+            --light-bg: #f8f9fa;
+            --dark-text: #1c1e21;
+            --success: #4cc9f0;
+            --success-gradient: linear-gradient(135deg, #4cc9f0 0%, #3a0ca3 100%);
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+            --locked: #6c757d;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Tiro Bangla', 'SolaimanLipi', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+        
+        .auth-container {
+            max-width: 450px;
+            margin: 3rem auto;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            font-size: 32px;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-control {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-success {
+            background: var(--success-gradient);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-outline-danger {
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            background: transparent;
+        }
+        
+        .btn-outline-danger:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .nav-tabs {
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            padding: 12px 20px;
+            color: var(--secondary);
+            font-weight: 600;
+            border-radius: 0;
+            transition: var(--transition);
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            background: transparent;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.15);
+        }
+        
+        .service-card.locked {
+            background-color: #f8f9fa;
+            color: var(--locked);
+        }
+        
+        .service-card.locked .card-title,
+        .service-card.locked .card-text {
+            color: var(--locked);
+        }
+        
+        .service-card.locked:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(248, 249, 250, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .service-card.locked:before {
+            content: '\f023';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 36px;
+            color: var(--locked);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+        
+        .payment-info {
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            height: fit-content;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar .nav-link {
+            color: var(--dark-text);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: var(--transition);
+        }
+        
+        .sidebar .nav-link.locked {
+            color: var(--locked);
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 12px;
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar .nav-link.locked i {
+            color: var(--locked);
+        }
+        
+        .status-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bangla-font {
+            font-family: 'Tiro Bangla', 'SolaimanLipi', 'Segoe UI', Tahoma, sans-serif;
+        }
+        
+        .activation-modal .modal-content {
+            border-radius: 16px;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .activation-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .payment-option {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+            transform: translateY(-3px);
+        }
+        
+        .payment-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .payment-option i {
+            font-size: 28px;
+            margin-right: 15px;
+            color: var(--primary);
+        }
+        
+        .activation-success {
+            text-align: center;
+            padding: 40px 25px;
+        }
+        
+        .activation-success i {
+            font-size: 72px;
+            color: var(--success);
+            margin-bottom: 25px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+        
+        /* Modern toggle switch */
+        .form-check-input {
+            width: 48px;
+            height: 24px;
+        }
+        
+        /* Floating labels */
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-floating>label {
+            padding: 1rem 0.75rem;
+        }
+        
+        /* Ripple effect for buttons */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+        }
+        
+        .ripple:after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+        
+        .ripple:active:after {
+            transform: scale(0, 0);
+            opacity: .3;
+            transition: 0s;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .auth-container {
+                margin: 1.5rem auto;
+                padding: 20px;
+            }
+            
+            .dashboard-container {
+                padding: 15px;
+            }
+            
+            .logo {
+                font-size: 26px;
+            }
+            
+            .service-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Container (Initially Visible) -->
+    <div id="auth-container" class="auth-container">
+        <div class="logo">
+            <i class="fas fa-briefcase me-2"></i>sohoz.bd
+        </div>
+        
+        <ul class="nav nav-tabs mb-4" id="authTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">লগইন</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">নিবন্ধন</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="authTabsContent">
+            <!-- Login Tab -->
+            <div class="tab-pane fade show active" id="login" role="tabpanel">
+                <form id="login-form">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="login-email" placeholder="ইমেইল বা ফোন নম্বর" required>
+                        <label for="login-email">ইমেইল বা ফোন নম্বর</label>
+                    </div>
+                    <div class="form-floating mb-4">
+                        <input type="password" class="form-control" id="login-password" placeholder="পাসওয়ার্ড" required>
+                        <label for="login-password">পাসওয়ার্ড</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 ripple">লগইন</button>
+                </form>
+            </div>
+            
+            <!-- Register Tab -->
+            <div class="tab-pane fade" id="register" role="tabpanel">
+                <form id="register-form">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="register-name" placeholder="পুরো নাম" required>
+                        <label for="register-name">পুরো নাম</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="register-email" placeholder="ইমেইল বা ফোন নম্বর" required>
+                        <label for="register-email">ইমেইল বা ফোন নম্বর</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="register-password" placeholder="পাসওয়ার্ড" required>
+                        <label for="register-password">পাসওয়ার্ড</label>
+                    </div>
+                    <div class="form-floating mb-4">
+                        <input type="password" class="form-control" id="register-confirm-password" placeholder="পাসওয়ার্ড নিশ্চিত করুন" required>
+                        <label for="register-confirm-password">পাসওয়ার্ড নিশ্চিত করুন</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 ripple">নিবন্ধন করুন</button>
+                </form>
+            </div>
+        </div>
+        
+        <div id="auth-message" class="alert mt-3 d-none"></div>
+    </div>
+
+    <!-- Dashboard Container (Initially Hidden) -->
+    <div id="dashboard-container" class="dashboard-container d-none">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="logo mb-0"><i class="fas fa-briefcase me-2"></i> sohoz.bd</h3>
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div>
+                    <div id="user-name">ব্যবহারকারীর নাম</div>
+                    <small class="text-muted" id="user-status">নিষ্ক্রিয়</small>
+                </div>
+                <button id="logout-btn" class="btn btn-outline-danger btn-sm ms-3">লগআউট</button>
+            </div>
+        </div>
+        
+        <div class="row">
+           
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="service-card">
+                    <span class="badge bg-danger status-badge">নিষ্ক্রিয়</span>
+                    <h4>অ্যাকাউন্ট স্ট্যাটাস</h4>
+                    <p class="text-danger">আপনার অ্যাকাউন্ট একটিভ নয়। </p>
+                    
+                    <div class="payment-info">
+                        <h5>একটিভেশন নির্দেশিকা:</h5>
+                        <p>একটিভ করতে একটিভেট বাটন চাপুন!:</p>
+                        
+                       
+                            </button>
+                        </div>
+                        <p class="mt-2"></p>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button class="btn btn-success btn-lg ripple" data-bs-toggle="modal" data-bs-target="#activationModal">
+                            <i class="fas fa-bolt me-2"></i>একটিভেট করুন
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="service-card locked">
+                    <h4><i class="fas fa-tachometer-alt me-2"></i>মাইক্রো job </h4>
+                    <p>ছোট ছোট লাইক, কমেন্ট করার কাজ ।</p>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="service-card locked">
+                            <h4><i class="fas fa-briefcase me-2"></i>জিমেইল id বিক্রি  কাজ</h4>
+                            <p>সাধারণ কাজের সুযোগগুলো অ্যাক্সেস করুন।</p>
+                        </div>
+                    </div>
+ <div class="col-md-6">
+                        <div class="service-card locked">
+                            <h4><i class="fas fa-star me-2"></i>লেখালেখি করে আয় </h4>
+                            <p>লেখালেখি করে ইনকাম করার সুযোগ  কাজের সুযোগগুলো অ্যাক্সেস করুন。</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="service-card locked">
+                            <h4><i class="fas fa-star me-2"></i>কুইজ গেম খেলে ইনকাম </h4>
+                            <p>বিভিন্ন কুইজ এর উত্তর দিয়ে ইনকাম এর সুযোগগুলো অ্যাক্সেস করুন。</p>
+                        </div>
+ <div class="col-md-6">
+                        <div class="service-card locked">
+                            <h4><i class="fas fa-star me-2"></i>ফেইসবুক id বিক্রির  কাজ</h4>
+                            <p>প্রিমি কাজের সুযোগগুলো অ্যাক্সেস করুন。</p>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="service-card locked">
+                            <h4><i class="fas fa-money-bill-wave me-2"></i>উত্তোলন</h4>
+                            <p>আপনার আয় উত্তোলন করুন।</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="service-card locked">
+                            <h4><i class="fas fa-users me-2"></i>আমার টিম</h4>
+                            <p>আপনার রেফারেল টিম দেখুন এবং ব্যবস্থাপনা করুন।</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activation Modal -->
+    <div class="modal fade activation-modal" id="activationModal" tabindex="-1" aria-labelledby="activationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="activation-header">
+                    <h5 class="modal-title" id="activationModalLabel">অ্যাকাউন্ট একটিভেশন</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="activationForm">
+                        <p>প্রথমে 👉
+
+
+𝟬𝟭𝟵𝟮𝟵𝟳𝟵𝟯𝟰𝟴𝟳
+
+ এই নাম্বার এ 50 টাকা সেন্ডমানি করুন/তারপর, নিচের তথ্য প্রদান করুন:</p>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">পেমেন্ট মাধ্যম নির্বাচন করুন</label>
+                            <div class="payment-option" data-payment="bkash">
+                                <i class="fab fa-amazon-pay"></i>
+                                <span>বিকাশ</span>
+                            </div>
+                            <div class="payment-option" data-payment="nagad">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>নগদ</span>
+                            </div>
+                            <div class="payment-option" data-payment="rocket">
+                                <i class="fas fa-rocket"></i>
+                                <span>রকেট</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="last-digits" maxlength="4" pattern="[0-9]{4}" placeholder="1234">
+                            <label for="last-digits">পাঠানোর নম্বরের শেষ ৪ ডিজিট</label>
+                        </div>
+                        
+                        <div class="form-floating mb-4">
+                            <input type="text" class="form-control" id="transaction-id" placeholder="Optional">
+                            <label for="transaction-id">ট্রানজেকশন আইডি (যদি থাকে)</label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary ripple" id="submit-activation">
+                                <i class="fas fa-paper-plane me-2"></i>সাবমিট করুন
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="activationSuccess" class="activation-success d-none">
+                        <i class="fas fa-check-circle"></i>
+                        <h4>আপনার একাউন্ট একটিভ অনুরোধ গৃহীত হয়েছে</h4>
+                        <p>সব কিছু সঠিক হলে আমাদের টীম আপনার একাউন্ট একটিভ করে দিবে 🥰</p>
+                        <button class="btn btn-primary mt-3 ripple" data-bs-dismiss="modal">ঠিক আছে</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCho5RtEIoXnNlNNrpBg65BmTpJY23Se7Y",
+            authDomain: "maillbeex.firebaseapp.com",
+            databaseURL: "https://maillbeex-default-rtdb.firebaseio.com",
+            projectId: "maillbeex",
+            storageBucket: "maillbeex.firebasestorage.app",
+            messagingSenderId: "5938669413",
+            appId: "1:5938669413:web:34b6bbbbb0e81628a2a38c",
+            measurementId: "G-F6YNLNQSK7"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // DOM Elements
+        const authContainer = document.getElementById('auth-container');
+        const dashboardContainer = document.getElementById('dashboard-container');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const authMessage = document.getElementById('auth-message');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userName = document.getElementById('user-name');
+        const userAvatar = document.getElementById('user-avatar');
+        const userStatus = document.getElementById('user-status');
+        const copyNumberBtn = document.getElementById('copy-number');
+        
+        $(document).ready(function() {
+            // Payment option selection
+            $('.payment-option').click(function() {
+                $('.payment-option').removeClass('selected');
+                $(this).addClass('selected');
+            });
+            
+            // Submit activation form
+            $('#submit-activation').click(function() {
+                const paymentMethod = $('.payment-option.selected').data('payment');
+                const lastDigits = $('#last-digits').val();
+                const transactionId = $('#transaction-id').val();
+                
+                if (!paymentMethod) {
+                    alert('দয়া করে একটি পেমেন্ট মাধ্যম নির্বাচন করুন');
+                    return;
+                }
+                
+                if (!lastDigits || lastDigits.length !== 4) {
+                    alert('দয়া করে সঠিকভাবে শেষ ৪ ডিজিট 입력 করুন');
+                    return;
+                }
+                
+                const user = auth.currentUser;
+                if (user) {
+                    // Save activation request to Firestore
+                    db.collection('activationRequests').add({
+                        userId: user.uid,
+                        paymentMethod: paymentMethod,
+                        lastDigits: lastDigits,
+                        transactionId: transactionId || '',
+                        status: "pending",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    })
+                    .then(() => {
+                        // Show success message
+                        $('#activationForm').addClass('d-none');
+                        $('#activationSuccess').removeClass('d-none');
+                    })
+                    .catch((error) => {
+                        alert('ত্রুটি: ' + error.message);
+                    });
+                } else {
+                    alert('দয়া করে প্রথমে লগইন করুন');
+                }
+            });
+            
+            // Copy number functionality
+            $('#copy-number').click(function(e) {
+                e.preventDefault();
+                navigator.clipboard.writeText("01929793487");
+                const originalText = $(this).html();
+                $(this).html('<i class="fas fa-check"></i> কপি হয়েছে!');
+                setTimeout(() => {
+                    $(this).html(originalText);
+                }, 2000);
+            });
+            
+            // Register Function
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+                
+                if (password !== confirmPassword) {
+                    showMessage("পাসওয়ার্ড মেলে না!", "danger");
+                    return;
+                }
+                
+                // Create user with Firebase Auth
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Signed in 
+                        const user = userCredential.user;
+                        
+                        // Update user avatar with initial
+                        userAvatar.textContent = name.charAt(0).toUpperCase();
+                        
+                        // Create user document in Firestore
+                        return db.collection('users').doc(user.uid).set({
+                            name: name,
+                            email: email,
+                            status: "inactive",
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    })
+                    .then(() => {
+                        showMessage("নিবন্ধন সফল! এখন আপনি লগইন করতে পারেন।", "success");
+                        // Switch to login tab
+                        document.getElementById('login-tab').click();
+                        registerForm.reset();
+                    })
+                    .catch((error) => {
+                        showMessage(error.message, "danger");
+                    });
+            });
+            
+            // Login Function
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Signed in
+                        const user = userCredential.user;
+                        
+                        // Get user data from Firestore
+                        return db.collection('users').doc(user.uid).get();
+                    })
+                    .then((doc) => {
+                        if (doc.exists) {
+                            const userData = doc.data();
+                            userName.textContent = userData.name;
+                            userAvatar.textContent = userData.name.charAt(0).toUpperCase();
+                            userStatus.textContent = userData.status === "active" ? "সক্রিয়" : "নিষ্ক্রিয়";
+                            
+                            // Show dashboard
+                            authContainer.classList.add('d-none');
+                            dashboardContainer.classList.remove('d-none');
+                            
+                            // Show appropriate content based on status
+                            if (userData.status === "inactive") {
+                                // Already showing inactive dashboard by default
+                            }
+                        } else {
+                            showMessage("কোন ব্যবহারকারী তথ্য পাওয়া যায়নি!", "danger");
+                        }
+                    })
+                    .catch((error) => {
+                        showMessage(error.message, "danger");
+                    });
+            });
+            
+            // Logout Function
+            logoutBtn.addEventListener('click', function() {
+                auth.signOut().then(() => {
+                    dashboardContainer.classList.add('d-none');
+                    authContainer.classList.remove('d-none');
+                    showMessage("আপনি লগআউট করেছেন।", "success");
+                });
+            });
+            
+            // Reset activation modal when closed
+            $('#activationModal').on('hidden.bs.modal', function() {
+                $('#activationForm').removeClass('d-none');
+                $('#activationSuccess').addClass('d-none');
+                $('.payment-option').removeClass('selected');
+                $('#last-digits, #transaction-id').val('');
+            });
+            
+            // Auth state observer
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // User is signed in, get user data
+                    db.collection('users').doc(user.uid).get()
+                        .then((doc) => {
+                            if (doc.exists) {
+                                const userData = doc.data();
+                                userName.textContent = userData.name;
+                                userAvatar.textContent = userData.name.charAt(0).toUpperCase();
+                                userStatus.textContent = userData.status === "active" ? "সক্রিয়" : "নিষ্ক্রিয়";
+                                
+                                // Show dashboard
+                                authContainer.classList.add('d-none');
+                                dashboardContainer.classList.remove('d-none');
+                            }
+                        });
+                } else {
+                    // User is signed out
+                    dashboardContainer.classList.add('d-none');
+                    authContainer.classList.remove('d-none');
+                }
+            });
+            
+            // Add ripple effect to all buttons
+            document.querySelectorAll('.btn').forEach(button => {
+                button.classList.add('ripple');
+            });
+        });
+        
+        // Show message in auth form
+        function showMessage(message, type) {
+            authMessage.textContent = message;
+            authMessage.classList.remove('d-none', 'alert-success', 'alert-danger');
+            authMessage.classList.add(`alert-${type}`);
+        }
+    </script>
+</body>
+</html>    }
     .selector {
       display: flex;
       flex-direction: column;
